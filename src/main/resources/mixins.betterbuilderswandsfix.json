@@ -1,0 +1,14 @@
+{
+	"package": "com.xinyihl.betterbuilderswandsfix.mixin",
+	"refmap": "mixins.betterbuilderswandsfix.refmap.json",
+	"target": "@env(DEFAULT)",
+	"minVersion": "0.8.5",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [
+		"BasicPlayerShimMixin",
+		"OopsCommandMixin",
+		"WandWorkerMixin"
+	],
+	"server": [],
+	"client": []
+}
