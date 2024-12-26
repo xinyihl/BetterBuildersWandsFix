@@ -10,10 +10,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import portablejim.bbw.basics.Point3d;
 import portablejim.bbw.core.items.IWandItem;
-import portablejim.bbw.network.GenericHandler;
 import portablejim.bbw.shims.BasicPlayerShim;
 
 import java.util.ArrayList;
@@ -29,11 +29,9 @@ public class PacketWandOops implements IMessage {
 
     }
 
-    public static class Handler extends GenericHandler<PacketWandOops> {
-        public Handler() {
-        }
-
-        public void processMessage(PacketWandOops packetWandOops, MessageContext context) {
+    public static class Handler implements IMessageHandler<PacketWandOops, IMessage> {
+        @Override
+        public IMessage onMessage(PacketWandOops packetWandOops, MessageContext context) {
             EntityPlayerMP player = context.getServerHandler().player;
             ItemStack currentItemstack = BasicPlayerShim.getHeldWandIfAny(player);
             if (currentItemstack != null && currentItemstack.getItem() instanceof IWandItem) {
@@ -65,7 +63,7 @@ public class PacketWandOops implements IMessage {
                 player.sendMessage(new TextComponentTranslation("bbw.chat.error.nowand"));
                 //throw new WrongUsageException("bbw.chat.error.nowand", new Object[0]);
             }
-
+            return null;
         }
 
         protected ArrayList<Point3d> unpackNbt(int[] placedBlocks) {
