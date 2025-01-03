@@ -79,13 +79,23 @@ public abstract class WandWorkerMixin {
             if (!placeEvent.isCanceled()) {
                 ItemStack itemFromInventory = player.useItem(sourceItems);
                 if (itemFromInventory != null && itemFromInventory.getItem() instanceof ItemBlock) {
-                    ItemBlock itemBlock = ((ItemBlock) itemFromInventory.getItem());
-                    if (itemBlock.getBlock().canPlaceBlockAt(world.getWorld(), blockPos.toBlockPos()) && itemBlock.placeBlockAt(itemFromInventory, player.getPlayer(), world.getWorld(), blockPos.toBlockPos(), EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock)){
-                        world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
-                        placedBlocks.add(blockPos);
-                        if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
+                    if(itemFromInventory.hasTagCompound()){
+                        ItemBlock itemBlock = ((ItemBlock) itemFromInventory.getItem());
+                        if (itemBlock.getBlock().canPlaceBlockAt(world.getWorld(), blockPos.toBlockPos()) && itemBlock.placeBlockAt(itemFromInventory, player.getPlayer(), world.getWorld(), blockPos.toBlockPos(), EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock)){
+                            world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
+                            placedBlocks.add(blockPos);
+                            if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
+                        }else {
+                            itemFromInventory.grow(1);
+                        }
                     }else {
-                        itemFromInventory.setCount(itemFromInventory.getCount() + 1);
+                        if (world.setBlock(blockPos, targetBlock)){
+                            world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
+                            placedBlocks.add(blockPos);
+                            if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
+                        }else {
+                            itemFromInventory.grow(1);
+                        }
                     }
                 }
             }
