@@ -76,26 +76,25 @@ public abstract class WandWorkerMixin {
             BlockSnapshot snapshot = new BlockSnapshot(world.getWorld(), blockPos.toBlockPos(), targetBlock);
             BlockEvent.PlaceEvent placeEvent = new BlockEvent.PlaceEvent(snapshot, targetBlock, player.getPlayer(), hand);
             MinecraftForge.EVENT_BUS.post(placeEvent);
-            if (!placeEvent.isCanceled()) {
-                ItemStack itemFromInventory = player.useItem(sourceItems);
-                if (itemFromInventory != null && itemFromInventory.getItem() instanceof ItemBlock) {
-                    if(itemFromInventory.hasTagCompound()){
-                        ItemBlock itemBlock = ((ItemBlock) itemFromInventory.getItem());
-                        if (itemBlock.getBlock().canPlaceBlockAt(world.getWorld(), blockPos.toBlockPos()) && itemBlock.placeBlockAt(itemFromInventory, player.getPlayer(), world.getWorld(), blockPos.toBlockPos(), EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock)){
-                            world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
-                            placedBlocks.add(blockPos);
-                            if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
-                        }else {
-                            itemFromInventory.grow(1);
-                        }
-                    }else {
-                        if (world.setBlock(blockPos, targetBlock)){
-                            world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
-                            placedBlocks.add(blockPos);
-                            if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
-                        }else {
-                            itemFromInventory.grow(1);
-                        }
+            if (placeEvent.isCanceled()) break;
+            ItemStack itemFromInventory = player.useItem(sourceItems);
+            if (itemFromInventory != null && itemFromInventory.getItem() instanceof ItemBlock) {
+                if (itemFromInventory.hasTagCompound()) {
+                    ItemBlock itemBlock = ((ItemBlock) itemFromInventory.getItem());
+                    if (itemBlock.getBlock().canPlaceBlockAt(world.getWorld(), blockPos.toBlockPos()) && itemBlock.placeBlockAt(itemFromInventory, player.getPlayer(), world.getWorld(), blockPos.toBlockPos(), EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock)) {
+                        world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
+                        placedBlocks.add(blockPos);
+                        if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
+                    } else {
+                        itemFromInventory.grow(1);
+                    }
+                } else {
+                    if (world.setBlock(blockPos, targetBlock)) {
+                        world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
+                        placedBlocks.add(blockPos);
+                        if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
+                    } else {
+                        itemFromInventory.grow(1);
                     }
                 }
             }
