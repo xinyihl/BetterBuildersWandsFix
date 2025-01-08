@@ -33,36 +33,38 @@ public class PacketWandOops implements IMessage {
         @Override
         public IMessage onMessage(PacketWandOops packetWandOops, MessageContext context) {
             EntityPlayerMP player = context.getServerHandler().player;
-            ItemStack currentItemstack = BasicPlayerShim.getHeldWandIfAny(player);
-            if (currentItemstack != null && currentItemstack.getItem() instanceof IWandItem) {
-                NBTTagCompound tagComponent = currentItemstack.getTagCompound();
-                if (tagComponent != null && tagComponent.hasKey("bbw", 10) && tagComponent.getCompoundTag("bbw").hasKey("lastPlaced", 11)) {
-                    NBTTagCompound bbwCompound = tagComponent.getCompoundTag("bbw");
-                    ArrayList<Point3d> pointList = this.unpackNbt(bbwCompound.getIntArray("lastPlaced"));
-                    for (Point3d point : pointList) {
-                        IBlockState pointState = player.getEntityWorld().getBlockState(new BlockPos(point.x, point.y, point.z));
-                        String pointStateString = pointState.toString();
-                        if (pointStateString != null && bbwCompound.hasKey("lastBlock") && pointStateString.equals(bbwCompound.getString("lastBlock"))) {
-                            BlockPos blockPos = new BlockPos(point.x, point.y, point.z);
-                            IBlockState iBlockState = player.getEntityWorld().getBlockState(blockPos);
-                            ItemStack item = iBlockState.getBlock().getPickBlock(iBlockState, new RayTraceResult(player), player.getEntityWorld(), blockPos, player);
-                            boolean isSetAir = player.getEntityWorld().setBlockToAir(blockPos);
-                            if (isSetAir && !player.isCreative()) player.getServerWorld().spawnEntity(new EntityItem(player.getEntityWorld(), player.posX, player.posY, player.posZ, item));
+            player.getServerWorld().addScheduledTask(()->{
+                ItemStack currentItemstack = BasicPlayerShim.getHeldWandIfAny(player);
+                if (currentItemstack != null && currentItemstack.getItem() instanceof IWandItem) {
+                    NBTTagCompound tagComponent = currentItemstack.getTagCompound();
+                    if (tagComponent != null && tagComponent.hasKey("bbw", 10) && tagComponent.getCompoundTag("bbw").hasKey("lastPlaced", 11)) {
+                        NBTTagCompound bbwCompound = tagComponent.getCompoundTag("bbw");
+                        ArrayList<Point3d> pointList = this.unpackNbt(bbwCompound.getIntArray("lastPlaced"));
+                        for (Point3d point : pointList) {
+                            IBlockState pointState = player.getEntityWorld().getBlockState(new BlockPos(point.x, point.y, point.z));
+                            String pointStateString = pointState.toString();
+                            if (pointStateString != null && bbwCompound.hasKey("lastBlock") && pointStateString.equals(bbwCompound.getString("lastBlock"))) {
+                                BlockPos blockPos = new BlockPos(point.x, point.y, point.z);
+                                IBlockState iBlockState = player.getEntityWorld().getBlockState(blockPos);
+                                ItemStack item = iBlockState.getBlock().getPickBlock(iBlockState, new RayTraceResult(player), player.getEntityWorld(), blockPos, player);
+                                boolean isSetAir = player.getEntityWorld().setBlockToAir(blockPos);
+                                if (isSetAir && !player.isCreative()) player.getServerWorld().spawnEntity(new EntityItem(player.getEntityWorld(), player.posX, player.posY, player.posZ, item));
+                            }
                         }
+                        bbwCompound.removeTag("lastPlaced");
+                        bbwCompound.removeTag("lastBlock");
+                        bbwCompound.removeTag("lastItemBlock");
+                        bbwCompound.removeTag("lastBlockMeta");
+                        bbwCompound.removeTag("lastPerBlock");
+                    } else {
+                        player.sendMessage(new TextComponentTranslation("bbw.chat.error.noundo"));
+                        // throw new WrongUsageException("bbw.chat.error.noundo", new Object[0]);
                     }
-                    bbwCompound.removeTag("lastPlaced");
-                    bbwCompound.removeTag("lastBlock");
-                    bbwCompound.removeTag("lastItemBlock");
-                    bbwCompound.removeTag("lastBlockMeta");
-                    bbwCompound.removeTag("lastPerBlock");
                 } else {
-                    player.sendMessage(new TextComponentTranslation("bbw.chat.error.noundo"));
-                    // throw new WrongUsageException("bbw.chat.error.noundo", new Object[0]);
+                    player.sendMessage(new TextComponentTranslation("bbw.chat.error.nowand"));
+                    //throw new WrongUsageException("bbw.chat.error.nowand", new Object[0]);
                 }
-            } else {
-                player.sendMessage(new TextComponentTranslation("bbw.chat.error.nowand"));
-                //throw new WrongUsageException("bbw.chat.error.nowand", new Object[0]);
-            }
+            });
             return null;
         }
 
