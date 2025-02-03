@@ -1,11 +1,15 @@
 package com.xinyihl.betterbuilderswandsfix.mixin;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent;
@@ -52,9 +56,9 @@ public abstract class WandWorkerMixin {
     )
     public void injected(IWorldShim world, IPlayerShim player, Point3d blockPos, float hitX, float hitY, float hitZ, CallbackInfoReturnable<ReplacementTriplet> cir) {
         ItemStack heldItem = player.getPlayer().getHeldItem(EnumHand.OFF_HAND).copy();
-        heldItem.setCount(1);
-        IBlockState heldBlockState = BasicPlayerShim.getBlock(heldItem).getStateForPlacement(world.getWorld(), blockPos.toBlockPos(), player.getPlayer().getHorizontalFacing(), hitX, hitY, hitZ, heldItem.getMetadata(), player.getPlayer(), EnumHand.MAIN_HAND);
         if (!heldItem.isEmpty()) {
+            heldItem.setCount(1);
+            IBlockState heldBlockState = BasicPlayerShim.getBlock(heldItem).getStateForPlacement(world.getWorld(), blockPos.toBlockPos(), player.getPlayer().getHorizontalFacing(), hitX, hitY, hitZ, heldItem.getMetadata(), player.getPlayer(), EnumHand.MAIN_HAND);
             if (player.countItems(heldItem) > 0 && heldBlockState.getBlock() != Blocks.AIR) {
                 cir.setReturnValue(new ReplacementTriplet(heldBlockState, heldItem, heldBlockState));
                 return;
@@ -70,32 +74,33 @@ public abstract class WandWorkerMixin {
     @SuppressWarnings("deprecation")
     @Overwrite
     public ArrayList<Point3d> placeBlocks(ItemStack wandItem, LinkedList<Point3d> blockPosList, IBlockState targetBlock, ItemStack sourceItems, EnumFacing side, float hitX, float hitY, float hitZ) {
+        EntityPlayer entityPlayer = player.getPlayer();
+        World worldObj = world.getWorld();
         ArrayList<Point3d> placedBlocks = new ArrayList<>();
         EnumHand hand = player.getPlayer().getHeldItemMainhand().getItem() instanceof ItemBasicWand ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
         for (Point3d blockPos : blockPosList) {
-            BlockSnapshot snapshot = new BlockSnapshot(world.getWorld(), blockPos.toBlockPos(), targetBlock);
-            BlockEvent.PlaceEvent placeEvent = new BlockEvent.PlaceEvent(snapshot, targetBlock, player.getPlayer(), hand);
+            BlockPos bp = blockPos.toBlockPos();
+            BlockSnapshot snapshot = new BlockSnapshot(worldObj, bp, targetBlock);
+            BlockEvent.PlaceEvent placeEvent = new BlockEvent.PlaceEvent(snapshot, targetBlock, entityPlayer, hand);
             MinecraftForge.EVENT_BUS.post(placeEvent);
-            if (placeEvent.isCanceled()) break;
+            if (placeEvent.isCanceled()) continue;
             ItemStack itemFromInventory = player.useItem(sourceItems);
             if (itemFromInventory != null && itemFromInventory.getItem() instanceof ItemBlock) {
+                ItemBlock itemBlock = ((ItemBlock) itemFromInventory.getItem());
+                boolean isPlace;
                 if (itemFromInventory.hasTagCompound()) {
-                    ItemBlock itemBlock = ((ItemBlock) itemFromInventory.getItem());
-                    if (itemBlock.getBlock().canPlaceBlockAt(world.getWorld(), blockPos.toBlockPos()) && itemBlock.placeBlockAt(itemFromInventory, player.getPlayer(), world.getWorld(), blockPos.toBlockPos(), EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock)) {
-                        world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
-                        placedBlocks.add(blockPos);
-                        if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
-                    } else {
-                        itemFromInventory.grow(1);
-                    }
+                    isPlace = itemBlock.getBlock().canPlaceBlockAt(worldObj, bp) && itemBlock.placeBlockAt(itemFromInventory, entityPlayer, worldObj, bp, EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock);
                 } else {
-                    if (world.setBlock(blockPos, targetBlock)) {
-                        world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
-                        placedBlocks.add(blockPos);
-                        if (!player.isCreative()) wand.placeBlock(wandItem, player.getPlayer());
-                    } else {
-                        itemFromInventory.grow(1);
-                    }
+                    isPlace = world.setBlock(blockPos, targetBlock);
+                }
+                if(isPlace){
+                    world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
+                    placedBlocks.add(blockPos);
+                    if (!player.isCreative()) wand.placeBlock(wandItem, entityPlayer);
+                } else {
+                    itemFromInventory.setCount(1);
+                    EntityItem entityItem = new EntityItem(worldObj, entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ, itemFromInventory);
+                    world.getWorld().spawnEntity(entityItem);
                 }
             }
         }
