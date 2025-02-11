@@ -10,13 +10,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -31,6 +30,8 @@ import portablejim.bbw.shims.IWorldShim;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import static net.minecraft.world.chunk.Chunk.NULL_BLOCK_STORAGE;
 
 @Mixin(value = WandWorker.class, remap = false)
 public abstract class WandWorkerMixin {
@@ -67,6 +68,30 @@ public abstract class WandWorkerMixin {
         }
     }
 
+    @Unique
+    private boolean betterBuildersWandsFix$setBlockWithoutLighting(World world, BlockPos pos, IBlockState newState) {
+        Chunk chunk = world.getChunk(pos);
+        int sectionIndex = pos.getY() >> 4;
+        ExtendedBlockStorage[] storageArray = chunk.getBlockStorageArray();
+        ExtendedBlockStorage storage = storageArray[sectionIndex];
+
+        if (storage == NULL_BLOCK_STORAGE)
+        {
+            storage = new ExtendedBlockStorage(pos.getY() >> 4 << 4, chunk.getWorld().provider.hasSkyLight());
+            chunk.getBlockStorageArray()[sectionIndex] = storage;
+        }
+
+        int x = pos.getX() & 15;
+        int y = pos.getY() & 15;
+        int z = pos.getZ() & 15;
+
+        IBlockState oldState = storage.get(x, y, z);
+        storage.set(x, y, z, newState);
+        chunk.markDirty();
+        world.notifyBlockUpdate(pos, oldState, newState, 2);
+        return true;
+    }
+
     /**
      * @author xinyihl
      * @reason 修复手杖放方块缺少nbt
@@ -91,7 +116,8 @@ public abstract class WandWorkerMixin {
                 if (itemFromInventory.hasTagCompound()) {
                     isPlace = itemBlock.getBlock().canPlaceBlockAt(worldObj, bp) && itemBlock.placeBlockAt(itemFromInventory, entityPlayer, worldObj, bp, EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock);
                 } else {
-                    isPlace = world.setBlock(blockPos, targetBlock);
+                      isPlace = betterBuildersWandsFix$setBlockWithoutLighting(worldObj, bp, targetBlock);
+                    //isPlace = world.setBlock(blockPos, targetBlock);
                 }
                 if(isPlace){
                     world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
