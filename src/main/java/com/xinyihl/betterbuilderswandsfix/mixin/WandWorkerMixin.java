@@ -69,7 +69,7 @@ public abstract class WandWorkerMixin {
     }
 
     @Unique
-    private boolean betterBuildersWandsFix$setBlockWithoutLighting(World world, BlockPos pos, IBlockState newState) {
+    private boolean betterBuildersWandsFix$setBlockStateFast(World world, BlockPos pos, IBlockState newState) {
         Chunk chunk = world.getChunk(pos);
         int sectionIndex = pos.getY() >> 4;
         ExtendedBlockStorage[] storageArray = chunk.getBlockStorageArray();
@@ -116,8 +116,7 @@ public abstract class WandWorkerMixin {
                 if (itemFromInventory.hasTagCompound()) {
                     isPlace = itemBlock.getBlock().canPlaceBlockAt(worldObj, bp) && itemBlock.placeBlockAt(itemFromInventory, entityPlayer, worldObj, bp, EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock);
                 } else {
-                      isPlace = betterBuildersWandsFix$setBlockWithoutLighting(worldObj, bp, targetBlock);
-                    //isPlace = world.setBlock(blockPos, targetBlock);
+                      isPlace = betterBuildersWandsFix$setBlockStateFast(worldObj, bp, targetBlock);
                 }
                 if(isPlace){
                     world.playPlaceAtBlock(blockPos, targetBlock.getBlock());

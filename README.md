@@ -6,3 +6,4 @@ Go to [Releases](https://github.com/xinyihl/BetterBuildersWandsFix/releases/late
 2. Fixed the issue of missing tags when checking if an item exists in the inventory.
 3. Added the ability to place off-hand items when an item is present in the off-hand.
 4. Added Ctrl+Z to undo the last placement.
+5. Bypass light update when placing nbt-free blocks
