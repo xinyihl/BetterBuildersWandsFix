@@ -66,6 +66,10 @@ minecraft {
     injectedTags.put('VERSION', project.version)
 }
 
+tasks.runClient.configure {
+    args = ['--width', '1920', '--height', '1080']
+}
+
 // Don't add coremod arg to runDeobf tasks
 if (project.use_coremod.toBoolean()) {
     for (runTask in ['runClient', 'runServer']) {
@@ -169,9 +173,9 @@ processResources {
 jar {
     manifest {
         def attribute_map = [:]
-        if(project.use_mixins.toBoolean()) {
-            attribute_map['TweakClass'] = "org.spongepowered.asm.launch.MixinTweaker"
-        }
+//        if(project.use_mixins.toBoolean()) {
+//            attribute_map['TweakClass'] = "org.spongepowered.asm.launch.MixinTweaker"
+//        }
         if (project.use_coremod.toBoolean()) {
             attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
             if (project.include_mod.toBoolean()) {
