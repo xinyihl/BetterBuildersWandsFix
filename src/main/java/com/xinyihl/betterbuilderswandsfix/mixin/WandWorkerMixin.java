@@ -116,7 +116,7 @@ public abstract class WandWorkerMixin {
                 if (itemFromInventory.hasTagCompound()) {
                     isPlace = itemBlock.getBlock().canPlaceBlockAt(worldObj, bp) && itemBlock.placeBlockAt(itemFromInventory, entityPlayer, worldObj, bp, EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock);
                 } else {
-                      isPlace = betterBuildersWandsFix$setBlockStateFast(worldObj, bp, targetBlock);
+                      isPlace = itemBlock.getBlock().canPlaceBlockAt(worldObj, bp) && betterBuildersWandsFix$setBlockStateFast(worldObj, bp, targetBlock);
                 }
                 if(isPlace){
                     world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
