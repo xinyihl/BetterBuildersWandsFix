@@ -1,5 +1,6 @@
 package com.xinyihl.betterbuilderswandsfix.mixin;
 
+import com.xinyihl.betterbuilderswandsfix.common.Configurations;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -113,7 +114,7 @@ public abstract class WandWorkerMixin {
             if (itemFromInventory != null && itemFromInventory.getItem() instanceof ItemBlock) {
                 ItemBlock itemBlock = ((ItemBlock) itemFromInventory.getItem());
                 boolean isPlace;
-                if (itemFromInventory.hasTagCompound()) {
+                if (Configurations.setBlockStateFastEnable && itemFromInventory.hasTagCompound()) {
                     isPlace = itemBlock.getBlock().canPlaceBlockAt(worldObj, bp) && itemBlock.placeBlockAt(itemFromInventory, entityPlayer, worldObj, bp, EnumFacing.DOWN, hitX, hitY, hitZ, targetBlock);
                 } else {
                       isPlace = itemBlock.getBlock().canPlaceBlockAt(worldObj, bp) && betterBuildersWandsFix$setBlockStateFast(worldObj, bp, targetBlock);
