@@ -66,9 +66,9 @@ minecraft {
     injectedTags.put('VERSION', project.version)
 }
 
-tasks.runClient.configure {
-    args = ['--width', '1920', '--height', '1080']
-}
+//tasks.runClient.configure {
+//    args = ['--width', '1920', '--height', '1080']
+//}
 
 // Don't add coremod arg to runDeobf tasks
 if (project.use_coremod.toBoolean()) {

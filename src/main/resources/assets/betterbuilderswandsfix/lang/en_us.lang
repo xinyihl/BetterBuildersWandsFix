@@ -1,1 +1,8 @@
 bbw.key.oops=Undo the last build
+bbw.chat.undo=Undo the last build Successful
+item.betterbuilderswandsfix.break_core.name=Destruction Core
+bbw.tooltip.break_mode=Break Mode: %s
+bbw.tooltip.break_mode.on=On
+bbw.tooltip.break_mode.off=Off
+bbw.tooltip.break_mode.toggle=Sneak + Right Click to toggle
+bbw.tooltip.break_mode.locked=Break Mode: Locked

@@ -1,1 +1,8 @@
 bbw.key.oops=撤回上一次的建造
+bbw.chat.undo=已撤回上一次的建造
+item.betterbuilderswandsfix.break_core.name=破坏核心
+bbw.tooltip.break_mode=破坏模式：%s
+bbw.tooltip.break_mode.on=开启
+bbw.tooltip.break_mode.off=关闭
+bbw.tooltip.break_mode.toggle=潜行+右键切换
+bbw.tooltip.break_mode.locked=破坏模式：未解锁
