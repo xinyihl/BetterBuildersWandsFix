@@ -16,6 +16,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -148,6 +150,7 @@ public abstract class ItemBasicWandMixin extends Item {
             method = "addInformation",
             at = @At("TAIL")
     )
+    @SideOnly(Side.CLIENT)
     private void betterBuildersWandsFix$addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn, CallbackInfo ci) {
         if (!Configurations.breakModeEnabled) {
             return;
