@@ -6,10 +6,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Mixin(value = ItemBasicWand.class, remap = false)
-public abstract class ItemBasicWandMixin {
+public abstract class ItemBasicWandMixin extends Item {
 
     @Inject(
             method = "onItemUse",
@@ -91,13 +93,6 @@ public abstract class ItemBasicWandMixin {
         }
         ItemStack wandStack = player.getHeldItem(hand);
         if (wandStack.isEmpty() || !Utils.isBreakModeUnlocked(wandStack)) {
-            return;
-        }
-
-        if (player.isSneaking()) {
-            boolean next = !Utils.isBreakModeActive(wandStack);
-            Utils.setBreakModeActive(wandStack, next);
-            cir.setReturnValue(EnumActionResult.SUCCESS);
             return;
         }
 
@@ -164,5 +159,20 @@ public abstract class ItemBasicWandMixin {
         boolean active = Utils.isBreakModeActive(stack);
         tooltip.add(I18n.format("bbw.tooltip.break_mode", I18n.format(active ? "bbw.tooltip.break_mode.on" : "bbw.tooltip.break_mode.off")));
         tooltip.add(I18n.format("bbw.tooltip.break_mode.toggle"));
+    }
+
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
+        if (!worldIn.isRemote && Configurations.breakModeEnabled) {
+            ItemStack wandStack = playerIn.getHeldItem(handIn);
+            if (!wandStack.isEmpty() && Utils.isBreakModeUnlocked(wandStack)) {
+                if (playerIn.isSneaking()) {
+                    boolean next = !Utils.isBreakModeActive(wandStack);
+                    Utils.setBreakModeActive(wandStack, next);
+                    return new ActionResult<>(EnumActionResult.SUCCESS, wandStack);
+                }
+            }
+        }
+        return super.onItemRightClick(worldIn, playerIn, handIn);
     }
 }
