@@ -1,32 +1,34 @@
 package com.xinyihl.betterbuilderswandsfix.mixin;
 
 import com.xinyihl.betterbuilderswandsfix.common.Utils;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import portablejim.bbw.core.BlockEvents;
 import portablejim.bbw.basics.Point3d;
 import portablejim.bbw.core.items.IWandItem;
-import portablejim.bbw.shims.BasicPlayerShim;
+import portablejim.bbw.shims.*;
 
-import java.util.LinkedList;
-
-import org.lwjgl.opengl.GL11;
+import java.util.List;
 
 @Mixin(value = BlockEvents.class, remap = false)
 public abstract class BlockEventsMixin {
 
-    @Shadow
-    public abstract void blockHighlightEvent(DrawBlockHighlightEvent event);
+    @Inject(
+            method = "blockHighlightEvent",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    public void blockHighlightEvent(DrawBlockHighlightEvent event, CallbackInfo ci) {
+        ci.cancel();
+    }
 
     @Unique
     @SubscribeEvent(receiveCanceled = true)
@@ -36,11 +38,14 @@ public abstract class BlockEventsMixin {
             return;
         }
 
-        if (!Utils.isBreakModeActive(wandStack)) {
-            if (event.isCanceled()) {
-                blockHighlightEvent(event);
+        //渲染撤回选择框
+        if (event.getPlayer().isSneaking()) {
+            List<Point3d> positions = Utils.getLastUndoCandidatePositions(wandStack, event.getPlayer().getEntityWorld());
+            BlockPos looked = Utils.findLookedAtLastUndoCandidate(event.getPlayer(), wandStack, event.getPlayer().getEntityWorld(), event.getPartialTicks());
+            if (looked != null) {
+                Utils.renderSelectionBox(positions, event.getPlayer(), true, event.getPartialTicks(), 1.0F, 1.0F, 0.0F, 0.6F);
+                return;
             }
-            return;
         }
 
         RayTraceResult target = event.getTarget();
@@ -48,36 +53,15 @@ public abstract class BlockEventsMixin {
             return;
         }
 
-        int maxBlocks = Utils.getWandMaxBlocks(wandStack);
-        LinkedList<Point3d> positions = Utils.getWandBreakPositionList(event.getPlayer(), wandStack, target.getBlockPos(), target.sideHit, maxBlocks);
-        if (positions.isEmpty()) {
+        //渲染放置方块选择框
+        if (!Utils.isBreakModeActive(wandStack)) {
+            List<Point3d> positions = Utils.getWandBlockPositionList(event.getPlayer(), wandStack, event.getTarget().getBlockPos(), event.getTarget().sideHit, event.getTarget().hitVec);
+            Utils.renderSelectionBox(positions, event.getPlayer(), false, event.getPartialTicks(), 1.0F, 1.0F, 1.0F, 0.4F);
             return;
         }
 
-        event.setCanceled(true);
-
-        double partialTicks = event.getPartialTicks();
-        double dx = event.getPlayer().lastTickPosX + (event.getPlayer().posX - event.getPlayer().lastTickPosX) * partialTicks;
-        double dy = event.getPlayer().lastTickPosY + (event.getPlayer().posY - event.getPlayer().lastTickPosY) * partialTicks;
-        double dz = event.getPlayer().lastTickPosZ + (event.getPlayer().posZ - event.getPlayer().lastTickPosZ) * partialTicks;
-
-        GlStateManager.disableTexture2D();
-        GlStateManager.disableBlend();
-        GlStateManager.depthMask(true);
-        GL11.glLineWidth(2.5F);
-
-        for (Point3d point : positions) {
-            BlockPos pos = new BlockPos(point.x, point.y, point.z);
-            IBlockState state = event.getPlayer().getEntityWorld().getBlockState(pos);
-            if (state.getBlock().isAir(state, event.getPlayer().getEntityWorld(), pos)) {
-                continue;
-            }
-            AxisAlignedBB bb = state.getSelectedBoundingBox(event.getPlayer().getEntityWorld(), pos).grow(0.002D).offset(-dx, -dy, -dz);
-            RenderGlobal.drawSelectionBoundingBox(bb, 1.0F, 0.0F, 0.0F, 0.4F);
-        }
-
-        GlStateManager.depthMask(true);
-        GlStateManager.enableBlend();
-        GlStateManager.enableTexture2D();
+        //渲染破坏模式选择框
+        List<Point3d> positions = Utils.getWandBreakPositionList(event.getPlayer(), wandStack, target.getBlockPos(), target.sideHit);
+        Utils.renderSelectionBox(positions, event.getPlayer(), false, event.getPartialTicks(), 1.0F, 0.0F, 0.0F, 0.4F);
     }
 }

@@ -25,7 +25,7 @@ public abstract class OopsCommandMixin {
             throw new WrongUsageException("bbw.chat.error.bot");
         } else {
             EntityPlayerMP player = (EntityPlayerMP) sender;
-            Utils.undoPlaceBlocks(player);
+            Utils.undoOperation(player);
         }
         ci.cancel();
     }

@@ -43,7 +43,6 @@ public abstract class WandWorkerMixin {
     @Final
     @Shadow
     private IWorldShim world;
-
     @Final
     @Shadow
     private IWand wand;

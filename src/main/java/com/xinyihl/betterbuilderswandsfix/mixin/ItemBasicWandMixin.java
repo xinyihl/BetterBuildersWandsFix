@@ -6,6 +6,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -90,9 +91,27 @@ public abstract class ItemBasicWandMixin extends Item {
             cancellable = true
     )
     private void betterBuildersWandsFix$handleBreakMode(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ, CallbackInfoReturnable<EnumActionResult> cir) {
-        if (world.isRemote || !Configurations.breakModeEnabled) {
+        if (world.isRemote) {
             return;
         }
+
+        if (player.isSneaking()) {
+            ItemStack wandStack = player.getHeldItem(hand);
+            if (!wandStack.isEmpty()) {
+                if (player instanceof EntityPlayerMP) {
+                    if (Utils.findLookedAtLastUndoCandidate(player, wandStack, world, 1.0F) != null) {
+                        Utils.undoOperation((EntityPlayerMP) player);
+                        cir.setReturnValue(EnumActionResult.SUCCESS);
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (!Configurations.breakModeEnabled) {
+            return;
+        }
+
         ItemStack wandStack = player.getHeldItem(hand);
         if (wandStack.isEmpty() || !Utils.isBreakModeUnlocked(wandStack)) {
             return;
@@ -108,9 +127,8 @@ public abstract class ItemBasicWandMixin extends Item {
             return;
         }
 
-        int maxBlocks = Utils.getWandMaxBlocks(wandStack);
-        LinkedList<Point3d> positions = Utils.getWandBreakPositionList(player, wandStack, pos, side, maxBlocks);
-        if (positions == null || positions.isEmpty()) {
+        LinkedList<Point3d> positions = Utils.getWandBreakPositionList(player, wandStack, pos, side);
+        if (positions.isEmpty()) {
             cir.setReturnValue(EnumActionResult.PASS);
             return;
         }
@@ -170,6 +188,12 @@ public abstract class ItemBasicWandMixin extends Item {
             ItemStack wandStack = playerIn.getHeldItem(handIn);
             if (!wandStack.isEmpty() && Utils.isBreakModeUnlocked(wandStack)) {
                 if (playerIn.isSneaking()) {
+                    if (playerIn instanceof EntityPlayerMP) {
+                        if (Utils.findLookedAtLastUndoCandidate(playerIn, wandStack, worldIn, 1.0F) != null) {
+                            Utils.undoOperation((EntityPlayerMP) playerIn);
+                            return new ActionResult<>(EnumActionResult.SUCCESS, wandStack);
+                        }
+                    }
                     boolean next = !Utils.isBreakModeActive(wandStack);
                     Utils.setBreakModeActive(wandStack, next);
                     return new ActionResult<>(EnumActionResult.SUCCESS, wandStack);

@@ -22,7 +22,7 @@ public class PacketWandOops implements IMessage {
         @Override
         public IMessage onMessage(PacketWandOops packetWandOops, MessageContext context) {
             EntityPlayerMP player = context.getServerHandler().player;
-            player.getServerWorld().addScheduledTask(()-> Utils.undoPlaceBlocks(player));
+            player.getServerWorld().addScheduledTask(()-> Utils.undoOperation(player));
             return null;
         }
     }
