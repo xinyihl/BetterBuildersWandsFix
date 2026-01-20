@@ -75,8 +75,7 @@ public abstract class WandWorkerMixin {
         ExtendedBlockStorage[] storageArray = chunk.getBlockStorageArray();
         ExtendedBlockStorage storage = storageArray[sectionIndex];
 
-        if (storage == NULL_BLOCK_STORAGE)
-        {
+        if (storage == NULL_BLOCK_STORAGE) {
             storage = new ExtendedBlockStorage(pos.getY() >> 4 << 4, chunk.getWorld().provider.hasSkyLight());
             chunk.getBlockStorageArray()[sectionIndex] = storage;
         }
@@ -120,7 +119,7 @@ public abstract class WandWorkerMixin {
                 } else {
                     isPlace = itemBlock.getBlock().canPlaceBlockAt(worldObj, bp) && worldObj.setBlockState(bp, targetBlock);
                 }
-                if(isPlace){
+                if (isPlace) {
                     world.playPlaceAtBlock(blockPos, targetBlock.getBlock());
                     placedBlocks.add(blockPos);
                     if (!player.isCreative()) wand.placeBlock(wandItem, entityPlayer);

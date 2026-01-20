@@ -2,6 +2,7 @@ package com.xinyihl.betterbuilderswandsfix.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.xinyihl.betterbuilderswandsfix.common.Configurations;
+import com.xinyihl.betterbuilderswandsfix.common.Utils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -11,8 +12,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -25,10 +26,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import portablejim.bbw.core.items.ItemBasicWand;
-import com.xinyihl.betterbuilderswandsfix.common.Utils;
 import portablejim.bbw.basics.Point3d;
+import portablejim.bbw.core.items.ItemBasicWand;
 
+import javax.annotation.Nonnull;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -183,7 +184,8 @@ public abstract class ItemBasicWandMixin extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
+    @Nonnull
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand handIn) {
         if (!worldIn.isRemote && Configurations.breakModeEnabled) {
             ItemStack wandStack = playerIn.getHeldItem(handIn);
             if (!wandStack.isEmpty() && Utils.isBreakModeUnlocked(wandStack)) {

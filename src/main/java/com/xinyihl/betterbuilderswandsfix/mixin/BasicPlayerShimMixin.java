@@ -24,7 +24,7 @@ public abstract class BasicPlayerShimMixin {
      */
     @Overwrite
     public int countItems(ItemStack itemStack) {
-        if(itemStack == null || itemStack.isEmpty() || player.inventory == null) {
+        if (itemStack == null || itemStack.isEmpty() || player.inventory == null) {
             return 0;
         }
         int total = 0;
@@ -32,14 +32,13 @@ public abstract class BasicPlayerShimMixin {
         Map<IContainerHandlerSpecial, Object> containerState = containerManager.initCount(player);
 
         // 计算背包内匹配物品数量
-        for(ItemStack inventoryStack : player.inventory.mainInventory) {
+        for (ItemStack inventoryStack : player.inventory.mainInventory) {
             if (inventoryStack.isEmpty()) continue;
-            if(itemStack.isItemEqual(inventoryStack) && ItemStack.areItemStackTagsEqual(itemStack, inventoryStack)) {
+            if (itemStack.isItemEqual(inventoryStack) && ItemStack.areItemStackTagsEqual(itemStack, inventoryStack)) {
                 total += Math.max(0, inventoryStack.getCount());
-            }
-            else {
+            } else {
                 int amount = containerManager.countItems(containerState, player, itemStack, inventoryStack);
-                if(amount == Integer.MAX_VALUE) {
+                if (amount == Integer.MAX_VALUE) {
                     return Integer.MAX_VALUE;
                 }
                 total += amount;
@@ -48,7 +47,7 @@ public abstract class BasicPlayerShimMixin {
 
         // 计算副手内匹配物品数量
         ItemStack offhandStack = player.getHeldItemOffhand();
-        if(!offhandStack.isEmpty() && itemStack.isItemEqual(offhandStack) && ItemStack.areItemStackTagsEqual(itemStack, offhandStack)){
+        if (!offhandStack.isEmpty() && itemStack.isItemEqual(offhandStack) && ItemStack.areItemStackTagsEqual(itemStack, offhandStack)) {
             total += Math.max(0, offhandStack.getCount());
         }
 
@@ -61,7 +60,7 @@ public abstract class BasicPlayerShimMixin {
      * @reason 消耗副手物品
      */
     @Overwrite
-    public ItemStack useItem(ItemStack itemStack){
+    public ItemStack useItem(ItemStack itemStack) {
         if (itemStack == null || itemStack.isEmpty() || player.inventory == null) {
             return null;
         }
@@ -71,10 +70,10 @@ public abstract class BasicPlayerShimMixin {
         int toUse = itemStack.getCount();
 
         // 优先消耗主背包物品 & 背包内容器中的物品（反向遍历）
-        for(int i = player.inventory.mainInventory.size()- 1; i >= 0; i--) {
+        for (int i = player.inventory.mainInventory.size() - 1; i >= 0; i--) {
             ItemStack inventoryStack = player.inventory.mainInventory.get(i);
-            if(inventoryStack.isEmpty()) continue;
-            if(itemStack.isItemEqual(inventoryStack) && ItemStack.areItemStackTagsEqual(itemStack, inventoryStack)) {
+            if (inventoryStack.isEmpty()) continue;
+            if (itemStack.isItemEqual(inventoryStack) && ItemStack.areItemStackTagsEqual(itemStack, inventoryStack)) {
                 ItemStack inventoryStackBackUp = inventoryStack.copy();
                 int consumeAmount = Math.min(inventoryStack.getCount(), toUse);
                 inventoryStack.shrink(consumeAmount);

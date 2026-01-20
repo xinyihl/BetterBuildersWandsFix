@@ -19,18 +19,14 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
-import portablejim.bbw.basics.Point3d;
-import portablejim.bbw.basics.EnumLock;
 import portablejim.bbw.basics.EnumFluidLock;
+import portablejim.bbw.basics.EnumLock;
+import portablejim.bbw.basics.Point3d;
 import portablejim.bbw.basics.ReplacementTriplet;
+import portablejim.bbw.core.WandWorker;
 import portablejim.bbw.core.items.IWandItem;
 import portablejim.bbw.core.wands.IWand;
-import portablejim.bbw.core.WandWorker;
-import portablejim.bbw.shims.BasicPlayerShim;
-import portablejim.bbw.shims.BasicWorldShim;
-import portablejim.bbw.shims.CreativePlayerShim;
-import portablejim.bbw.shims.IPlayerShim;
-import portablejim.bbw.shims.IWorldShim;
+import portablejim.bbw.shims.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -100,7 +96,8 @@ public class Utils {
                 IBlockState iBlockState = player.getEntityWorld().getBlockState(blockPos);
                 ItemStack item = iBlockState.getBlock().getPickBlock(iBlockState, new RayTraceResult(player), player.getEntityWorld(), blockPos, player);
                 boolean isSetAir = player.getEntityWorld().setBlockToAir(blockPos);
-                if (isSetAir && !player.isCreative()) player.getServerWorld().spawnEntity(new EntityItem(player.getEntityWorld(), player.posX, player.posY, player.posZ, item));
+                if (isSetAir && !player.isCreative())
+                    player.getServerWorld().spawnEntity(new EntityItem(player.getEntityWorld(), player.posX, player.posY, player.posZ, item));
             }
         }
         historyList.removeTag(lastIndex);
@@ -430,7 +427,7 @@ public class Utils {
         return breakList;
     }
 
-    public static void renderSelectionBox(List<Point3d> positions, EntityPlayer player, boolean renderAir, double partialTicks, float red, float green, float blue, float alpha){
+    public static void renderSelectionBox(List<Point3d> positions, EntityPlayer player, boolean renderAir, double partialTicks, float red, float green, float blue, float alpha) {
         if (positions.isEmpty()) return;
         double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
@@ -445,7 +442,7 @@ public class Utils {
             IBlockState state = player.getEntityWorld().getBlockState(pos);
             AxisAlignedBB bb;
             if (state.getBlock().isAir(state, player.getEntityWorld(), pos)) {
-                if(!renderAir) continue;
+                if (!renderAir) continue;
                 bb = new AxisAlignedBB(pos).grow(0.002D).offset(-dx, -dy, -dz);
             } else {
                 bb = state.getSelectedBoundingBox(player.getEntityWorld(), pos).grow(0.002D).offset(-dx, -dy, -dz);

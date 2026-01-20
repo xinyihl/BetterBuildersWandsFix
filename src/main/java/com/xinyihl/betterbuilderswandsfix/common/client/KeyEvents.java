@@ -28,7 +28,7 @@ public class KeyEvents {
     public void KeyEvent(InputEvent event) {
         if (keyBinding.isPressed()) {
             ItemStack currentItemstack = BasicPlayerShim.getHeldWandIfAny(Minecraft.getMinecraft().player);
-            if(currentItemstack != null && currentItemstack.getItem() instanceof IWandItem){
+            if (currentItemstack != null && currentItemstack.getItem() instanceof IWandItem) {
                 PacketWandOops packet = new PacketWandOops();
                 BetterBuildersWandsFix.instance.networkWrapper.sendToServer(packet);
             }

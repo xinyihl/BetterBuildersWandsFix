@@ -11,10 +11,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import portablejim.bbw.core.BlockEvents;
 import portablejim.bbw.basics.Point3d;
+import portablejim.bbw.core.BlockEvents;
 import portablejim.bbw.core.items.IWandItem;
-import portablejim.bbw.shims.*;
+import portablejim.bbw.shims.BasicPlayerShim;
 
 import java.util.List;
 
