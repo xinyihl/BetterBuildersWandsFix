@@ -56,7 +56,7 @@ public abstract class BlockEventsMixin {
         //渲染放置方块选择框
         if (!Utils.isBreakModeActive(wandStack)) {
             List<Point3d> positions = Utils.getWandBlockPositionList(event.getPlayer(), wandStack, event.getTarget().getBlockPos(), event.getTarget().sideHit, event.getTarget().hitVec);
-            Utils.renderSelectionBox(positions, event.getPlayer(), false, event.getPartialTicks(), 1.0F, 1.0F, 1.0F, 0.4F);
+            Utils.renderSelectionBox(positions, event.getPlayer(), true, event.getPartialTicks(), 1.0F, 1.0F, 1.0F, 0.4F);
             return;
         }
 
