@@ -1,5 +1,5 @@
 ## BetterBuildersWandsFix
-Go to [Releases](https://github.com/xinyihl/BetterBuildersWandsFix/releases/latest) to download the release version. Go to [Actions](https://github.com/xinyihl/BetterBuildersWandsFix/actions) to download the development version.
+Go to [Curseforge](https://www.curseforge.com/minecraft/mc-mods/betterbuilderswandsfix) or [Modrinth](https://modrinth.com/mod/betterbuilderswandsfix) to download the release version. Go to [Actions](https://github.com/xinyihl/BetterBuildersWandsFix/actions) to download the development version.
 
 ### Features:
 *   Fixed the issue of losing NBT data when placing & withdrawing blocks.
