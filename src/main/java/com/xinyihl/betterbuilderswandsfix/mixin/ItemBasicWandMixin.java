@@ -41,7 +41,8 @@ public abstract class ItemBasicWandMixin extends Item {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/item/ItemStack;setTagInfo(Ljava/lang/String;Lnet/minecraft/nbt/NBTBase;)V"
-            )
+            ),
+            remap = true
     )
     private void afterSaveLastPlaced(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ, CallbackInfoReturnable<EnumActionResult> cir, @Local(name = "bbwCompound") NBTTagCompound bbwCompound) {
         if (world.isRemote || bbwCompound == null) {
@@ -89,7 +90,8 @@ public abstract class ItemBasicWandMixin extends Item {
     @Inject(
             method = "onItemUse",
             at = @At("HEAD"),
-            cancellable = true
+            cancellable = true,
+            remap = true
     )
     private void betterBuildersWandsFix$handleBreakMode(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ, CallbackInfoReturnable<EnumActionResult> cir) {
         if (world.isRemote) {
@@ -167,7 +169,8 @@ public abstract class ItemBasicWandMixin extends Item {
 
     @Inject(
             method = "addInformation",
-            at = @At("TAIL")
+            at = @At("TAIL"),
+            remap = true
     )
     @SideOnly(Side.CLIENT)
     private void betterBuildersWandsFix$addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn, CallbackInfo ci) {
