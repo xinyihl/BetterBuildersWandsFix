@@ -27,7 +27,7 @@ public abstract class BasicPlayerShimMixin {
         if (itemStack == null || itemStack.isEmpty() || player.inventory == null) {
             return 0;
         }
-        int total = 0;
+        long total = 0;
         ContainerManager containerManager = BetterBuildersWandsMod.instance.containerManager;
         Map<IContainerHandlerSpecial, Object> containerState = containerManager.initCount(player);
 
@@ -38,9 +38,6 @@ public abstract class BasicPlayerShimMixin {
                 total += Math.max(0, inventoryStack.getCount());
             } else {
                 int amount = containerManager.countItems(containerState, player, itemStack, inventoryStack);
-                if (amount == Integer.MAX_VALUE) {
-                    return Integer.MAX_VALUE;
-                }
                 total += amount;
             }
         }
@@ -52,7 +49,10 @@ public abstract class BasicPlayerShimMixin {
         }
 
         total += containerManager.finalCount(containerState);
-        return itemStack.getCount() > 0 ? total / itemStack.getCount() : 0;
+        return (int) Math.min(
+                Integer.MAX_VALUE,
+                itemStack.getCount() > 0 ? total / itemStack.getCount() : 0
+        );
     }
 
     /**
